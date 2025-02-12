@@ -1,0 +1,449 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voice Input Form </title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <style>
+        /* Basic styling for the page */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            box-sizing: border-box;
+        }
+
+        h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .login-container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        label {
+            font-size: 16px;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        input[type="text"],
+        input[type="tel"] {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            background-color: #f9f9f9;
+        }
+
+        button {
+            padding: 7px;
+            background-color: #007bff;
+            border: none;
+            border-radius: 50%;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            width: 33px;
+            height: 33px;
+            margin-top: -3px;
+            position: absolute;
+            right: -20px;
+            top: 40%;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        button:focus {
+            outline: none;
+        }
+
+        /* Centering the login form */
+        .form-group {
+            position: relative;
+        }
+
+        /* Responsive styling */
+        @media (max-width: 600px) {
+            h2 {
+                font-size: 18px;
+            }
+
+            input[type="text"],
+            input[type="tel"] {
+                font-size: 14px;
+            }
+
+            button {
+                width: 40px;
+                height: 40px;
+                font-size: 16px;
+                right: 5px;
+                top: 35%;
+            }
+
+            .login-container {
+                padding: 20px;
+            }
+        }
+
+        @media (max-width: 400px) {
+            button {
+                width: 35px;
+                height: 35px;
+                font-size: 14px;
+                right: 5px;
+                top: 30%;
+            }
+        }
+    </style>
+    <script>
+
+        // Old Code....
+        // function speakTextAndStartRecognition(fieldId, labelText) {
+        //     let speech = new SpeechSynthesisUtterance(labelText);
+        //     speech.lang = 'en-US';
+        //     speech.onend = function () {
+        //         startRecognition(fieldId);
+        //     };
+        //     window.speechSynthesis.speak(speech);
+        // }
+
+        // function speakText(labelText) {
+        //     let speech = new SpeechSynthesisUtterance(labelText);
+        //     speech.lang = 'en-US';
+        //     window.speechSynthesis.speak(speech);
+        // }
+
+        // function startRecognition(fieldId) {
+        //     let recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+        //     recognition.lang = 'en-US';
+        //     recognition.start();
+
+        //     recognition.onresult = function (event) {
+        //         document.getElementById(fieldId).value = event.results[0][0].transcript;
+        //     };
+
+        //     recognition.onerror = function (event) {
+        //         console.error('Speech recognition error:', event.error);
+        //     };
+        // }
+    </script>
+</head>
+
+<body>
+    <div class="login-container">
+        <h2>Voice Input Form</h2>
+        <form>
+            <div class="form-group">
+                <label for="name">Name:</label>
+                <input type="text" id="name"><br>
+                <button type="button" onclick="startRecognition('name')"><i class="fas fa-microphone"></i></button>
+            </div>
+
+            <div class="form-group">
+                <label for="dob">DOB:</label>
+                <input type="text" id="dob"><br>
+                <button type="button" onclick="startRecognition('dob')"><i class="fas fa-microphone"></i></button>
+            </div>
+
+            <div class="form-group">
+                <label for="address">Address:</label>
+                <input type="text" id="address"><br>
+                <button type="button" onclick="startRecognition('address')"><i class="fas fa-microphone"></i></button>
+            </div>
+
+            <div class="form-group">
+                <label for="phone">Phone:</label>
+                <input type="tel" id="phone"><br>
+                <button type="button" onclick="startRecognition('phone')"><i class="fas fa-microphone"></i></button>
+            </div>
+
+            <div class="form-group">
+                <label for="country">Country:</label>
+                <input type="text" id="country"><br>
+                <button type="button" onclick="startRecognition('country')"><i class="fas fa-microphone"></i></button>
+            </div>
+            <div><b>Note :</b>Please click the mic and speak
+                <i class='fas fa-volume-up' onclick="speakText('Please click the mic and speak')"
+                    style='font-size:15px; cursor: pointer;'></i>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        let mediaRecorder;
+        let audioChunks = [];
+        let currentField = '';
+
+        function startRecognition(fieldId) {
+            currentField = fieldId;
+            navigator.mediaDevices.getUserMedia({ audio: true })
+                .then(stream => {
+                    mediaRecorder = new MediaRecorder(stream);
+                    mediaRecorder.start();
+                    audioChunks = [];
+
+                    mediaRecorder.ondataavailable = event => {
+                        audioChunks.push(event.data);
+                    };
+
+                    mediaRecorder.onstop = () => {
+                        let audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+                        sendAudioToServer(audioBlob);
+                    };
+
+                    setTimeout(() => {
+                        mediaRecorder.stop();
+                        // alert('stopped')
+                    }, 5000); // 5 seconds recording
+                })
+                .catch(error => console.error('Error accessing microphone:', error));
+        }
+
+        function sendAudioToServer(audioBlob) {
+            
+
+            var fd = new FormData;
+        fd.append("currentField", currentField)
+        fd.append("audio", audioBlob);
+        var token = "{{ csrf_token }}";
+        $.ajax({
+            url: "",
+            type: "POST",
+            data: fd,
+            processData: false,
+            contentType: false,
+            headers: { 'X-CSRF-Token': token },
+            beforeSend: function () { $('#loading_modal').modal('show'); },
+            success(response) {
+                var text = response['text'] 
+                if (text) {
+                        document.getElementById(currentField).value = text;
+                    } else {
+                        console.error("Error:", data.error);
+                    }
+            }
+        })
+
+    }
+    </script>
+</body>
+
+</html> -->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voice Input Form</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <style>
+        /* Basic styling */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .login-container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .form-group {
+            position: relative;
+            margin-bottom: 15px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            background-color: #f9f9f9;
+        }
+
+        .record-btn {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: #007bff;
+            border: none;
+            border-radius: 50%;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            transition: background-color 0.3s ease;
+        }
+
+        .record-btn:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="login-container">
+        <h2>Voice Input Form</h2>
+        <form id="voiceForm">
+            <div class="form-group">
+                <label for="name">Name:</label>
+                <input type="text" id="name">
+                <button type="button" class="record-btn" onclick="toggleRecording('name', this)">
+                    <i class="fas fa-microphone"></i>
+                </button>
+            </div>
+
+            <div class="form-group">
+                <label for="dob">DOB:</label>
+                <input type="text" id="dob">
+                <button type="button" class="record-btn" onclick="toggleRecording('dob', this)">
+                    <i class="fas fa-microphone"></i>
+                </button>
+            </div>
+
+            <div class="form-group">
+                <label for="address">Address:</label>
+                <input type="text" id="address">
+                <button type="button" class="record-btn" onclick="toggleRecording('address', this)">
+                    <i class="fas fa-microphone"></i>
+                </button>
+            </div>
+
+            <div class="form-group">
+                <label for="phone">Phone:</label>
+                <input type="tel" id="phone">
+                <button type="button" class="record-btn" onclick="toggleRecording('phone', this)">
+                    <i class="fas fa-microphone"></i>
+                </button>
+            </div>
+
+            <div class="form-group">
+                <label for="country">Country:</label>
+                <input type="text" id="country">
+                <button type="button" class="record-btn" onclick="toggleRecording('country', this)">
+                    <i class="fas fa-microphone"></i>
+                </button>
+            </div>
+
+            <div><b>Note :</b> Please click the mic and speak  
+                <i class='fas fa-volume-up' onclick="speakText('Please click the mic and speak')" style='font-size:15px; cursor: pointer;'></i>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        let mediaRecorder;
+        let audioChunks = [];
+        let currentField = '';
+        let isRecording = false;
+
+        function toggleRecording(fieldId, btn) {
+            if (!isRecording) {
+                startRecording(fieldId, btn);
+            } else {
+                stopRecording(btn);
+            }
+        }
+
+        function startRecording(fieldId, btn) {
+            currentField = fieldId;
+            navigator.mediaDevices.getUserMedia({ audio: true })
+                .then(stream => {
+                    mediaRecorder = new MediaRecorder(stream);
+                    mediaRecorder.start();
+                    audioChunks = [];
+
+                    mediaRecorder.ondataavailable = event => {
+                        audioChunks.push(event.data);
+                    };
+
+                    mediaRecorder.onstop = () => {
+                        let audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+                        sendAudioToServer(audioBlob);
+                    };
+
+                    isRecording = true;
+                    btn.innerHTML = '<i class="fas fa-pause"></i>';
+                    btn.style.backgroundColor = '#dc3545'; // Change to red when recording
+                })
+                .catch(error => console.error('Error accessing microphone:', error));
+        }
+
+        function stopRecording(btn) {
+            if (mediaRecorder) {
+                mediaRecorder.stop();
+                isRecording = false;
+                btn.innerHTML = '<i class="fas fa-microphone"></i>';
+                btn.style.backgroundColor = '#007bff'; // Reset color
+            }
+        }
+
+        function sendAudioToServer(audioBlob) {
+            let fd = new FormData();
+            fd.append("currentField", currentField);
+            fd.append("audio", audioBlob);
+
+            $.ajax({
+                url: "", // Set the correct backend endpoint
+                type: "POST",
+                data: fd,
+                processData: false,
+                contentType: false,
+                headers: { 'X-CSRF-Token': "{{ csrf_token }}" },
+                success(response) {
+                    let text = response['text'];
+                    if (text) {
+                        document.getElementById(currentField).value = text;
+                    } else {
+                        console.error("Error:", response.error);
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+
+</html>
